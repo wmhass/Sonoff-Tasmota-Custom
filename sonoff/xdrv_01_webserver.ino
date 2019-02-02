@@ -857,7 +857,6 @@ String htmlEscape(String s)
 
 void HandleWifiScanAPI(void)
 {
-  if (!HttpCheckPriviledgedAccess()) { return; }
 
   AddLog_P(LOG_LEVEL_DEBUG, S_LOG_HTTP, "Wifi scan");
 
