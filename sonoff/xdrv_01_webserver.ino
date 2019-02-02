@@ -356,6 +356,7 @@ void StartWebserver(int type, IPAddress ipweb)
       WebServer->on("/ax", HandleAjaxConsoleRefresh);
       WebServer->on("/ay", HandleAjaxStatusRefresh);
       WebServer->on("/cm", HandleHttpCommand);
+      WebServer->on("/ws", HandleWifiScanAPI);
       WebServer->onNotFound(HandleNotFound);
 #ifndef BE_MINIMAL
       WebServer->on("/cn", HandleConfiguration);
@@ -851,6 +852,94 @@ String htmlEscape(String s)
     s.replace("/", "&#x2F;");
     return s;
 }
+
+/*-------------------------------------------------------------------------------------------*/
+
+void HandleWifiScanAPI(void)
+{
+  if (!HttpCheckPriviledgedAccess()) { return; }
+
+  AddLog_P(LOG_LEVEL_DEBUG, S_LOG_HTTP, "Wifi scan");
+
+  #ifdef USE_EMULATION
+    UdpDisconnect();
+  #endif  // USE_EMULATION
+
+  String page = "";
+  int n = WiFi.scanNetworks();
+  // AddLog_P(LOG_LEVEL_DEBUG, PSTR(D_LOG_WIFI D_SCAN_DONE));
+
+  if (0 == n) {
+    // AddLog_P(LOG_LEVEL_DEBUG, S_LOG_WIFI, S_NO_NETWORKS_FOUND);
+    // page += FPSTR(S_NO_NETWORKS_FOUND);
+    // page += F(". " D_REFRESH_TO_SCAN_AGAIN ".");
+  } else {
+    //sort networks
+    int indices[n];
+    for (int i = 0; i < n; i++) {
+      indices[i] = i;
+    }
+
+    // RSSI SORT
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        if (WiFi.RSSI(indices[j]) > WiFi.RSSI(indices[i])) {
+          std::swap(indices[i], indices[j]);
+        }
+      }
+    }
+
+    // remove duplicates ( must be RSSI sorted )
+    if (remove_duplicate_access_points) {
+      String cssid;
+      for (int i = 0; i < n; i++) {
+        if (-1 == indices[i]) { continue; }
+        cssid = WiFi.SSID(indices[i]);
+        for (int j = i + 1; j < n; j++) {
+          if (cssid == WiFi.SSID(indices[j])) {
+            snprintf_P(log_data, sizeof(log_data), PSTR(D_LOG_WIFI D_DUPLICATE_ACCESSPOINT " %s"), WiFi.SSID(indices[j]).c_str());
+            AddLog(LOG_LEVEL_DEBUG);
+            indices[j] = -1;  // set dup aps to index -1
+          }
+        }
+      }
+    }
+
+    page += "[";
+    //display networks in page
+    for (int i = 0; i < n; i++) {
+      if (-1 == indices[i]) { continue; }  // skip dups
+      snprintf_P(log_data, sizeof(log_data), PSTR(D_LOG_WIFI D_SSID " %s, " D_BSSID " %s, " D_CHANNEL " %d, " D_RSSI " %d"), WiFi.SSID(indices[i]).c_str(), WiFi.BSSIDstr(indices[i]).c_str(), WiFi.channel(indices[i]), WiFi.RSSI(indices[i]));
+      AddLog(LOG_LEVEL_DEBUG);
+      int quality = WifiGetRssiAsQuality(WiFi.RSSI(indices[i]));
+
+      if (minimum_signal_quality == -1 || minimum_signal_quality < quality) {
+        uint8_t auth = WiFi.encryptionType(indices[i]);
+        // String ssid = String(WiFi.SSID(indices[i]));
+        String item = "{\"ssid\": \"|s|\", \"authmode\": |a|}";
+        item.replace("|s|", String(WiFi.SSID(indices[i])));
+        if (auth == 8) {
+          item.replace("|a|",  "0");
+        } else {
+          item.replace("|a|",  String(auth));
+        }
+        if (i != n-1) {
+          item += ",";
+        }
+        page += item;
+        delay(0);
+      } else {
+        // AddLog_P(LOG_LEVEL_DEBUG, PSTR(D_LOG_WIFI D_SKIPPING_LOW_QUALITY));
+      }
+    }
+    page += "]";
+  }
+
+  SetHeader();
+  WebServer->send(200, FPSTR(HDR_CTYPE_JSON), page);
+}
+
+/*-------------------------------------------------------------------------------------------*/
 
 void HandleWifiConfiguration()
 {
