@@ -429,6 +429,7 @@ void PollDnsWebserver()
 void SetHeader()
 {
   WebServer->sendHeader(F("Cache-Control"), F("no-cache, no-store, must-revalidate"));
+  WebServer->sendHeader(F("Access-Control-Allow-Methods"), F("POST, GET, OPTIONS, DELETE, PUT"));
   WebServer->sendHeader(F("Pragma"), F("no-cache"));
   WebServer->sendHeader(F("Expires"), F("-1"));
 #ifndef ARDUINO_ESP8266_RELEASE_2_3_0
