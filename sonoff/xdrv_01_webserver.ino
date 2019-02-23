@@ -432,9 +432,10 @@ void SetHeader()
   WebServer->sendHeader(F("Access-Control-Allow-Methods"), F("POST, GET, OPTIONS, DELETE, PUT"));
   WebServer->sendHeader(F("Pragma"), F("no-cache"));
   WebServer->sendHeader(F("Expires"), F("-1"));
-#ifndef ARDUINO_ESP8266_RELEASE_2_3_0
+// #ifndef ARDUINO_ESP8266_RELEASE_2_3_0
   WebServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
-#endif
+  WebServer->sendHeader(F("Access-Control-Allow-Headers"), F("Jwt"));
+// #endif
 }
 
 bool WebAuthenticate(void)
@@ -859,6 +860,11 @@ String htmlEscape(String s)
 void HandleWifiScanAPI(void)
 {
 
+  if (WebServer->method() == HTTP_OPTIONS) {
+    SetHeader();
+    WebServer->send(200, FPSTR(HDR_CTYPE_JSON), "");
+    return;
+  }
   AddLog_P(LOG_LEVEL_DEBUG, S_LOG_HTTP, "Wifi scan");
 
   #ifdef USE_EMULATION
@@ -1736,6 +1742,11 @@ void HandlePreflightRequest()
 void HandleHttpCommand()
 {
   if (HttpUser()) { return; }
+  if (WebServer->method() == HTTP_OPTIONS) {
+    SetHeader();
+    WebServer->send(200, FPSTR(HDR_CTYPE_JSON), "");
+    return;
+  }
 //  if (!WebAuthenticate()) { return WebServer->requestAuthentication(); }
   char svalue[INPUT_BUFFER_SIZE];  // Large to serve Backlog
 
@@ -1895,6 +1906,7 @@ void HandleNotFound()
 /* Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
 boolean CaptivePortal()
 {
+  return false;
   if ((HTTP_MANAGER == webserver_state) && !ValidIpAddress(WebServer->hostHeader())) {
     AddLog_P(LOG_LEVEL_DEBUG, PSTR(D_LOG_HTTP D_REDIRECTED));
 
