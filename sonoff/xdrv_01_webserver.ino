@@ -433,7 +433,7 @@ void SetHeader()
   WebServer->sendHeader(F("Pragma"), F("no-cache"));
   WebServer->sendHeader(F("Expires"), F("-1"));
 // #ifndef ARDUINO_ESP8266_RELEASE_2_3_0
-  WebServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
+  // WebServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
   WebServer->sendHeader(F("Access-Control-Allow-Headers"), F("Jwt"));
 // #endif
 }
