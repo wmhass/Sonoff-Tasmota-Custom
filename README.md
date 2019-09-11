@@ -1,142 +1,412 @@
-<img src="/tools/logo/TASMOTA_FullLogo_Vector.svg" alt="Logo" align="right" height="76"/>
+## TODO: Como setar time, timezone...
 
-# Sonoff-Tasmota
-Alternative firmware for _ESP8266 based devices_ like [iTead](https://www.itead.cc/) _**Sonoff**_ with **web UI, rules and timers, OTA updates, custom device templates and sensor support**. Allows control over **MQTT**, **HTTP**, **Serial** and **KNX** for integrations with smart home systems. Written for Arduino IDE and PlatformIO.
+# Sonoff Tasmota Firmware
 
-[![GitHub version](https://img.shields.io/github/release/arendst/Sonoff-Tasmota.svg)](https://github.com/arendst/Sonoff-Tasmota/releases/latest)
-[![GitHub download](https://img.shields.io/github/downloads/arendst/Sonoff-Tasmota/total.svg)](https://github.com/arendst/Sonoff-Tasmota/releases/latest)
-[![License](https://img.shields.io/github/license/arendst/Sonoff-Tasmota.svg)](https://github.com/arendst/Sonoff-Tasmota/blob/development/LICENSE.txt)
-[![Chat](https://img.shields.io/discord/479389167382691863.svg)](https://discord.gg/Ks2Kzd4)
+---
 
-If you like **Sonoff-Tasmota**, give it a star, or fork it and contribute!
+# Installation
 
-[![GitHub stars](https://img.shields.io/github/stars/arendst/Sonoff-Tasmota.svg?style=social&label=Star)](https://github.com/arendst/Sonoff-Tasmota/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/arendst/Sonoff-Tasmota.svg?style=social&label=Fork)](https://github.com/arendst/Sonoff-Tasmota/network)
-[![donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/tasmota)
+## Hardware requirements:
+1. FTDI Adapter
+2. Header Pins (You might need to solder them on the Sonoff in order to connect it to the FTDI Adapter)
 
-See [RELEASENOTES.md](https://github.com/arendst/Sonoff-Tasmota/blob/development/RELEASENOTES.md) for release information.
+## Steps
+1. Install `Atom` and `PlatformIO`
+2. Make sure you can run the `PIO Build` target to build the firmware.
+  - This step will build the firmware and save it into `.pio/build/sonoff/framework.bin`
+3. Connect the FTDI Adapter to your computer and check if the adapter is recognized. One way to double check it is to open the `Serial Monitor` if you are using the `Atom/PlatformIO` IDE  and see if something like `/dev/cu.usbserial-XXXXX` appears in the list of ports.
+4. Connect the Sonoff to FTDI:
+    1. Connect the FTDI VCC to the Sonoff VCC pin
+    1. Connect the FTDI GND to the Sonoff GND pin
+    1. Connect the FTDI RX to the Sonoff TX
+    1. Connect the FTDI TX to the Sonoff RX
+5. Put the Sonoff Device in "Flash mode":
+    1. Disconnect the FTDI from your computer
+    1. Press and hold the Sonoff button
+    1. While holding the Sonoff button, connect the FTDI to your computer
+    1. Wait for 5 seconds and release the Sonoff button.
+    1. Done, now the Sonoff device is in Flash mode and prepared to receive a new firmware
+6. Upload the firmware you built in the step #2: Although `PlatformIO` offers an `Upload` option, sometimes it does not work, so we use the `esptool` to do so. You can open the terminal inside the IDE (or whatever) and run `esptool.py --port /dev/cu.usbserial-AK0730II write_flash -fs 1MB -fm dout 0x0 .pio/build/sonoff/firmware.bin`
+    1. Replace `cu.usbserial-AK0730II` by the name of your Port
+7. Done, now disconnect the FTDI and connect it again to your computer and you should be good to go. In order to test if every thing worked, open the `Serial Monitor`, type `power` and press `Enter`. You should see an output with the status of the Sonoff: `stat/Sonoff_xxxxxx/RESULT = {"POWER":"ON"}`
 
-In addition to the [release webpage](https://github.com/arendst/Sonoff-Tasmota/releases/latest) the binaries can also be downloaded from http://thehackbox.org/tasmota/release/
+Note: After you upload the firmware, it is nice to run a command to reset it to the initial configurations, just to make sure your device is not carry any configuration. In order to do that follow these steps:
+  1. Connect the Sonoff to the FTDI adapter and connect the FTDI adapter to your computer
+  2. Open the `Serial Monitor` by selecting your FTDI in the list of ports. In the serial monitor, type `reset 2`. You might see an output like this: `22:21:49 MQT: stat/Sonoff_xxxxxx/RESULT = {"Reset":"Erase, Reset and Restarting"}` then the Sonoff device will restart.
 
-## Development
-[![Dev Version](https://img.shields.io/badge/development%20version-v6.6.0.x-blue.svg)](https://github.com/arendst/Sonoff-Tasmota)
-[![Download Dev](https://img.shields.io/badge/download-development-yellow.svg)](http://thehackbox.org/tasmota/)
-[![Build Status](https://img.shields.io/travis/arendst/Sonoff-Tasmota.svg)](https://travis-ci.org/arendst/Sonoff-Tasmota)
+---
 
-See [sonoff/_changelog.ino](https://github.com/arendst/Sonoff-Tasmota/blob/development/sonoff/_changelog.ino) for detailed change information.
+# Send configurations to the Sonoff
 
-The development codebase is checked hourly for changes and if new commits have been merged and compile successfuly they will be posted at http://thehackbox.org/tasmota/ (this web address can be used for OTA too). It is important to note that these are based on the current development codebase and it is not recommended to flash it to devices used in production or which are hard to reach in the event that you need to manually flash the device if OTA failed. The last compiled commit number is also posted on the same page along with the current build status (if a firmware rebuild is in progress).
+For a complete list of commands, check the [Sonoff Tasmota Commands original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
 
-## Disclaimer
-:warning: **DANGER OF ELECTROCUTION** :warning:
+## Introduction
 
-A Sonoff device is not a toy. It uses Mains AC so there is a danger of electrocution if not installed properly. If you don't know how to install it, please call an electrician. Remember: _**SAFETY FIRST**_. It is not worth risk to yourself, your family, and your home if you don't know exactly what you are doing. Never try to flash a Sonoff device while it is connected to MAINS AC.
+After you upload a new firmware and reset it to the initial configurations, when you turn on the Sonoff device, it will create a WiFi network with an `SSID` that might look like `Sonoff_xxxxxx-xxxx`. Now, the device is ready to receive new configurations.
 
-We don't take any responsibility nor liability for using this software nor for the installation or any tips, advice, videos, etc. given by any member of this site or any related site.
+## Important configurations
 
-## Note
-Please do not ask to add new devices unless it requires additional code for new features. If the device is not listed as a module, try using [Templates](https://github.com/arendst/Sonoff-Tasmota/wiki/Templates) first. If it is not listed in the [Tasmota Device Templates Repository](http://blakadder.github.io/templates) create your own [Template](https://github.com/arendst/Sonoff-Tasmota/wiki/Templates#creating-your-template-).
+The next steps will be to connect the Sonoff to a wifi network, that means you need to set an ssid and a password (if network is protected) to it.
 
-## Quick Install
-Download one of the released binaries from https://github.com/arendst/Sonoff-Tasmota/releases and flash it to your hardware as [documented in the wiki](https://github.com/arendst/Sonoff-Tasmota/wiki/Flashing).
+Also, you might want to connect your Sonoff to a MQTT server. You can set a mqtt host, a mqtt port, a mqtt user and a mqtt password.
 
-## Important User Compilation Information
-If you want to compile Sonoff-Tasmota yourself keep in mind the following:
+## Sending configurations and commands to the Sonoff
 
-- Only Flash Mode **DOUT** is supported. Do not use Flash Mode DIO / QIO / QOUT as it might seem to brick your device. See [Wiki](https://github.com/arendst/Sonoff-Tasmota/wiki/Theo's-Tasmota-Tips) for background information.
-- Sonoff-Tasmota uses a 1M linker script WITHOUT spiffs **1M (no SPIFFS)** for optimal code space. If you compile using ESP/Arduino library 2.3.0 then download the provided new linker script to your Arduino IDE or Platformio base folder. Later version of ESP/Arduino library already contain the correct linker script. See [Wiki > Prerequisites](https://github.com/arendst/Sonoff-Tasmota/wiki/Prerequisites).
-- To make compile time changes to Sonoff-Tasmota it can use the ``user_config_override.h`` file. It assures keeping your settings when you download and compile a new version. To use ``user_config.override.h`` you will have to make a copy of the provided ``user_config_override_sample.h`` file and add your setting overrides. To enable the override file you will need to use a compile define as documented in the ``user_config_override_sample.h`` file.
+There are three ways you can set configurations to the Sonoff:
+1. From the Serial monitor
+2. Making a HTTP Request call to the device IP address
+3. MQTT
 
-## Version Information
-- Sonoff-Tasmota provides all (Sonoff) modules in one file and starts with module Sonoff Basic.
-- Once uploaded, select [Module](https://github.com/arendst/Sonoff-Tasmota/wiki/Modules) using the configuration webpage, the commands ```Modules``` and ```Module``` or configure the [Template](https://github.com/arendst/Sonoff-Tasmota/wiki/Templates) for your device
-- After reboot select config menu again or use commands ```GPIOs``` and ```GPIO``` to change GPIO with desired sensor.
+One command is executed per message. There is a way called "Backlog" that allows sending more than one command at once, but we will talk about it later in this topic. A command usually looks like this: "Command value". For example, if you want to set the ssid name to the device, you would use `ssid my_wifi_name`.
 
-## Migration Information
-See [wiki migration path](https://github.com/arendst/Sonoff-Tasmota/wiki/Upgrade#migration-path) for instructions how to migrate to a major version. Pay attention to the following version breaks due to dynamic settings updates:
+**If the Sonoff device is connected to a MQTT Server, every time a command is executed either by serial monitor or by HTTP requests, it will post a MQTT message to `stat/Sonoff_xxxxxx/RESULT`. In addition to that, some commands may post additional messages to other topics, such as the `power` commands, that retrieves the status of a relay**
 
-1. Migrate to **Sonoff-Tasmota 3.9.x**
-2. Migrate to **Sonoff-Tasmota 4.x**
-3. Migrate to **Sonoff-Tasmota 5.14**
-4. Migrate to **Sonoff-Tasmota 6.x**
+### Executing commands through Serial Monitor
 
-## Support Information
-<img src="https://github.com/arendst/arendst.github.io/blob/master/media/sonoffbasic.jpg" width="250" align="right" />
+If you want to send commands through the `Serial Monitor`, you would open the monitor and type: `ssid my_wifi_name`. Every time you send a command, the Sonoff Tasmota firmware will save the configuration and reset the device.
 
-For a database of supported devices see [Tasmota Device Templates Repository](https://blakadder.github.io/templates)
+### Executing commands through HTTP Requests
 
-See [Wiki](https://github.com/arendst/Sonoff-Tasmota/wiki) for use instructions and how-to's.<br />
-See [Community](https://groups.google.com/d/forum/sonoffusers) for forum.<br />
-Visit [Discord Chat](https://discord.gg/Ks2Kzd4) for discussions and troubleshooting.
+If you want to send commands through an HTTP request call, you first should now the IP address of the Sonoff in the network. If the Sonoff is in the setup mode and you are connected to its wifi network, the IP address will be `192.168.4.1`, otherwise you should know the Sonoff IP address in the current network (You can figure this out by checking the `Serial Monitor` when the Sonoff starts, then it will show its IP address in the current network).
 
-## Contribute
-You can contribute to Sonoff-Tasmota by
-- providing Pull Requests (Features, Proof of Concepts, Language files or Fixes)
-- testing new released features and report issues
-- donating to acquire hardware for testing and implementing or out of gratitude
-- contributing missing documentation for features and devices on our [Wiki](https://github.com/arendst/Sonoff-Tasmota/wiki)
+Let's say you want to connect the Sonoff device to a wifi network called `my_wifi_name`, this is how you would send a command to the Sonoff through an HTTP Request call: `http://192.168.4.1/cm?cmnd=ssid%20my_wifi_name`. Note that there is a `%20` character between the `ssid` word and the wifi name. This is used because you need to escape the blank space there.
 
-[![donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/tasmota)
+### Executing commands through MQTT
 
-## Credits
+To send commands and view responses you'll need an MQTT client.
 
-### Libraries Used
-Libraries used with Sonoff-Tasmota are:
-- [ESP8266 core for Arduino](https://github.com/esp8266/Arduino)
-- [Adafruit CCS811](https://github.com/adafruit/Adafruit_CCS811)
-- [Adafruit ILI9341](https://github.com/adafruit/Adafruit_ILI9341)
-- [Adafruit LED Backpack](https://github.com/adafruit/Adafruit-LED-Backpack-Library)
-- [Adafruit SGP30](https://github.com/adafruit/Adafruit_SGP30)
-- [Adafruit SSD1306](https://github.com/adafruit/Adafruit_SSD1306)
-- [Adafruit GFX](https://github.com/adafruit/Adafruit-GFX-Library)
-- [ArduinoJson](https://arduinojson.org/)
-- [Bosch BME680](https://github.com/BoschSensortec/BME680_driver)
-- [C2 Programmer](http://app.cear.ufpb.br/~lucas.hartmann/tag/efm8bb1/)
-- [esp-epaper-29-ws-20171230-gemu](https://github.com/gemu2015/Sonoff-Tasmota/tree/displays/lib)
-- [esp-knx-ip](https://github.com/envy/esp-knx-ip)
-- FrogmoreScd30
-- [I2Cdevlib](https://github.com/jrowberg/i2cdevlib)
-- [IRremoteEsp8266](https://github.com/markszabo/IRremoteESP8266)
-- [JobaTsl2561](https://github.com/joba-1/Joba_Tsl2561)
-- [LinkedList](https://github.com/ivanseidel/LinkedList)
-- [Liquid Cristal](https://github.com/marcoschwartz/LiquidCrystal_I2C)
-- [MultiChannelGasSensor](http://wiki.seeedstudio.com/Grove-Multichannel_Gas_Sensor/)
-- [NeoPixelBus](https://github.com/Makuna/NeoPixelBus)
-- [NewPing](https://bitbucket.org/teckel12/arduino-new-ping/wiki/Home)
-- [OneWire](https://github.com/PaulStoffregen/OneWire)
-- [PubSubClient](https://github.com/knolleary/pubsubclient)
-- [rc-switch](https://github.com/sui77/rc-switch)
+Commands over MQTT are issued by using `cmnd/%topic%/<command> <parameter>`. If there is no `<parameter>` (an empty MQTT message/payload), a query is sent for current status of the `<command>`.
 
-### People inspiring me
-People helping to keep the show on the road:
-- David Lang providing initial issue resolution and code optimizations
-- Heiko Krupp for his IRSend, HTU21, SI70xx and Wemo/Hue emulation drivers
-- Wiktor Schmidt for Travis CI implementation
-- Thom Dietrich for PlatformIO optimizations
-- Marinus van den Broek for his EspEasy groundwork
-- Pete Ba for more user friendly energy monitor calibration
-- Lobradov providing compile optimization tips
-- Flexiti for his initial timer implementation
-- reloxx13 for his [TasmoAdmin](https://github.com/reloxx13/TasmoAdmin) management tool
-- Joachim Banzhaf for his TSL2561 library and driver
-- Gijs Noorlander for his MHZ19, SenseAir and updated PubSubClient drivers
-- Emontnemery for his HomeAssistant Discovery concept and many code tuning tips
-- Aidan Mountford for his HSB support
-- Daniel Ztolnai for his Serial Bridge implementation
-- Gerhard Mutz for multiple sensor & display drivers, Sunrise/Sunset, and scripting
-- Nuno Ferreira for his HC-SR04 driver
-- Adrian Scillato for his (security)fixes and implementing and maintaining KNX
-- Gennaro Tortone for implementing and maintaining Eastron drivers
-- Raymond Mouthaan for managing Wemos Wiki information
-- Norbert Richter for his decode-config.py tool
-- Andre Thomas for providing [thehackbox](http://thehackbox.org/tasmota/) OTA support and daily development builds
-- Joel Stein and digiblur for their Tuya research and driver
-- Frogmore42 and Jason2866 for providing many issue answers
-- Blakadder for editing the wiki and providing template management
-- Stephan Hadinger for refactoring light driver and enhancing HueEmulation
-- tmo for designing the official logo
-- Many more providing Tips, Wips, Pocs or PRs
+Most of times, the response of the MQTT commands will be published to the topic `stat/Sonoff_xxxxxx/RESULT`. There are some arbitrary exception such as the `status`, that will post its response to the topic `stat/Sonoff_432E20/STATUS`. (I could not find a logic behind this topic changes, so you might have to use a MQTT client to test the commands you are going to use and see to what topic their response will be published to by subscribing to the `stat/Sonoff_432E20/#`)
 
-## License
+See [MQTT](https://github.com/arendst/Sonoff-Tasmota/wiki/MQTT) wiki to find out more.
 
-This program is licensed under GPL-3.0
+### Executing multiple commands at once (Backlog)
+
+As mentioned before, every time a command is sent, the Sonoff will save the configurations and then will reset. But actually there is a way to send multiple commands, so it will only reset after setting all the passed configurations, and it is called `Backlog`. Basically, you just have to add the `Backlog` word at the beginning of the command. As an example, let's say we want to set the ssid name and the wifi password at once:
+- From the terminal: `Backlog SSID my_wifi_name;Password 1234;Power On`
+- From the HTTP Request call: `http://192.168.4.1/cm?cmnd=Backlog%20Ssid%20my_wifi_name%3BPassword%201234` (Note the `%3B` between the `my_wifi_name` and the `Password` word. This is the `;` character URL escaped. This character is used to separate commands.)
+- An example of a more complex command that sets mqtt and wifi configuration: `http://192.168.4.1/cm?cmnd=Backlog%20MqttPort%201883%3BMqttHost%20192.168.0.108%3BSSId%20Lilo_escritorio%3BPassword%201357924680%3BGPIO14%203`
+
+**When you execute multiple commands at once, the Sonoff device will post one message in the topic `stat/Sonoff_xxxxxx/RESULT` for each command it executed**
+
+## Useful and most common commands
+
+### Check the Sonoff state:
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
+
+- Serial Command: `state`
+- HTTP Request: http://192.168.0.132/cm?cmnd=state
+- MQTT command message topic: `cmnd/Sonoff_432E20/state`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+Output:
+```
+{
+ "Status":{
+    "Module":4,
+    "FriendlyName":[
+       "Sonoff"
+    ],
+    "Topic":"Sonoff_xxxxxx",
+    "ButtonTopic":"0",
+    "Power":0,
+    "PowerOnState":3,
+    "LedState":1,
+    "SaveData":1,
+    "SaveState":1,
+    "SwitchTopic":"0",
+    "SwitchMode":[
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+    ],
+    "ButtonRetain":0,
+    "SwitchRetain":0,
+    "SensorRetain":0,
+    "PowerRetain":0
+ }
+}
+```
+
+### Check the Sonoff status:
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/STATUS`
+
+- Serial Command: `Status`
+- HTTP Request: http://192.168.0.132/cm?cmnd=status
+- MQTT command message topic: `cmnd/Sonoff_432E20/status`
+  - MQTT response topic: `stat/Sonoff_432E20/STATUS` / Payload: Same as the output described below
+Output:
+```
+{
+ "Status":{
+    "Module":4,
+    "FriendlyName":[
+       "Sonoff"
+    ],
+    "Topic":"Sonoff_xxxxxx",
+    "ButtonTopic":"0",
+    "Power":0,
+    "PowerOnState":3,
+    "LedState":1,
+    "SaveData":1,
+    "SaveState":1,
+    "SwitchTopic":"0",
+    "SwitchMode":[
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+    ],
+    "ButtonRetain":0,
+    "SwitchRetain":0,
+    "SensorRetain":0,
+    "PowerRetain":0
+ }
+}
+```
+
+### Set WiFI+MQTT configuration
+As mentioned before in the `Backlog` section, the Sonoff device will post one MQTT message for each command it executed to the tpoic `stat/Sonoff_xxxxxx/RESULT`.
+
+- Serial Command: `Backglog ssid Lilo_escritorio;password 1357924680;mqtthost 192.168.0.108;mqttport 1883;`
+- HTTP Request: http://192.168.0.132/cm?cmnd=Backlog%20MqttPort%201883%3BMqttHost%20192.168.0.108%3BSSId%20Lilo_escritorio%3BPassword%201357924680 (Note that the empty spaces and the `;` characters are escaped)
+
+Output (The device will reset after sending the response):
+```
+{
+  "WARNING":"Enable weblog 2 if response expected"
+}
+```
+
+### Check relay state
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/POWER`
+
+Depending on the Sonoff model, it may have more than only one Relay
+- Serial Command: `power 1`
+- HTTP Request: http://192.168.0.132/cm?cmnd=power1
+- MQTT command message topic: `cmnd/Sonoff_432E20/power`
+  - MQTT response topic: `stat/Sonoff_432E20/POWER` / Payload: `ON` or `OFF`.
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below.
+Output:
+```
+{
+  POWER: "ON"
+}
+```
+
+### Turn on/off relay
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/POWER`
+
+Depending on the Sonoff model, it may have more than only one Relay
+ - Serial Command: `power1 1` (or `0` to turn it off)
+ - HTTP Request: http://192.168.0.132/cm?cmnd=power1%201 to turn on and http://192.168.0.132/cm?cmnd=power1%200 to turn off (Note that the empty space is escaped by using `%20`)
+ - MQTT command message topic: `cmnd/Sonoff_432E20/power` / Payload: `1` (or `0` to turn it off)
+   - MQTT response topic: `stat/Sonoff_432E20/POWER` / Payload: `ON` or `OFF`.
+   - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below.
+Output:
+```
+{
+ POWER: "ON"
+}
+```
+
+### Fetch list of timers
+**Important note:**: The first field in the response JSON called `Timers` indicates if the timer feature is enabled (`on`) or disabled (`off`).
+
+The Sonoff Tasmota firmware provides `16` programmable timers. The response JSON separates the timers in chunks of `4`. For more informations about timers, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers)
+
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
+
+- Serial Command: `timers`
+- HTTP Request: http://192.168.0.132/cm?cmnd=timers
+- MQTT command message topic: `cmnd/Sonoff_432E20/timers`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below, but each `Timersx` chunk will be published in a separate message.
+
+Output:
+```
+{
+   "Timers":"OFF",
+   "Timers1":{
+      "Timer1":{
+         "Arm":0,
+         "Mode":0,
+         "Time":"00:00",
+         "Window":0,
+         "Days":"0000000",
+         "Repeat":0,
+         "Output":1,
+         "Action":0
+      },
+      "Timer2":{
+         "Arm":0,
+         "Mode":0,
+         "Time":"00:00",
+         "Window":0,
+         "Days":"0000000",
+         "Repeat":0,
+         "Output":1,
+         "Action":0
+      },
+      "Timer3":{
+         ...
+      },
+      "Timer4":{
+         ...
+      }
+   },
+   "Timers2":{
+      "Timer5":{
+         "Arm":0,
+         "Mode":0,
+         "Time":"00:00",
+         "Window":0,
+         "Days":"0000000",
+         "Repeat":0,
+         "Output":1,
+         "Action":0
+      },
+      "Timer6":{
+         ...
+      },
+      "Timer7":{
+         ...
+      },
+      "Timer8":{
+         ...
+      }
+   },
+   "Timers3":{
+      "Timer9":{
+         ...
+      },
+      "Timer10":{
+         ...
+      },
+      "Timer11":{
+         ...
+      },
+      "Timer12":{
+         ...
+      }
+   },
+   "Timers4":{
+      "Timer13":{
+         ...
+      },
+      "Timer14":{
+         ...
+      },
+      "Timer15":{
+         ...
+      },
+      "Timer16":{
+         ...
+      }
+   }
+}
+```
+
+### Enable/Disable Timer Feature
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
+
+- Serial Command: `timers 1` to enable and `timers 0` to disable
+- HTTP Request: http://192.168.0.132/cm?cmnd=timers%201 to enable and http://192.168.0.132/cm?cmnd=timers%200 to disable (Note that the empty space is escaped by using `%20`)
+- MQTT command message topic: `cmnd/Sonoff_432E20/timers` / Payload: `1` to enable and `0` to disable
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below, but each key (`Timers` and `Timersx`) chunk will be published in a separate message.
+
+Output (The output JSON format is the same as the fetch operation, so the representation here was simplified by using `...` for better readability):
+```
+{
+   "Timers":"OFF",
+   "Timers1":{
+      ...
+   },
+   "Timers2":{
+      ...
+   },
+   "Timers3":{
+      ...
+   },
+   "Timers4":{
+      ...
+   }
+}
+```
+
+### Setup timer
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
+
+For more information about what each timer field means, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers)
+
+- Serial Command: `Timer1 {"Arm":1,"Time":"02:23","Window":0,"Days":"--TW--S","Repeat":1,"Output":1,"Action":1}`
+- HTTP Request: http://192.168.0.132/cm?cmnd=Timer1%20{%22Arm%22:1,%22Time%22:%2202:23%22,%22Window%22:0,%22Days%22:%22--TW--S%22,%22Repeat%22:1,%22Output%22:1,%22Action%22:1}
+- MQTT command message topic: `cmnd/Sonoff_432E20/timer` / Payload: `{"Arm":1,"Time":"02:23","Window":0,"Days":"--TW--S","Repeat":1,"Output":1,"Action":1}`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below
+Output:
+```
+{
+  "Timer1":{
+     "Arm":1,
+     "Mode":0,
+     "Time":"02:23",
+     "Window":0,
+     "Days":"0011001",
+     "Repeat":1,
+     "Output":1,
+     "Action":1
+  }
+}
+```
+
+### Setup Sonoff GPIOs module
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
+
+This configurations will set the kind of sensor that will be connected to a specific `GPIO`. For this example, we will set the `GPIO14` to be used with a `SI7021`, which is a Sonoff Temperature&Humidity sensor. To check the complete list of supported sensors, go to the Sonoff device web panel configuration: [http://192.168.0.132/md](http://192.168.0.132/md)
+
+- Serial Monitor command: `Backglog GPIO14 3`
+- HTTP Request: http://192.168.0.132/cm?cmnd=GPIO14%203 (Note that the empty space is escaped `%20`)
+- MQTT command message topic: `cmnd/Sonoff_432E20/gpio14` / Payload: `3`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below
+
+Output: (The device will reset after sending the response)
+```
+{
+  "GPIO1":"0 (None)",
+  "GPIO3":"0 (None)",
+  "GPIO4":"0 (None)",
+  "GPIO14":"3 (SI7021)"
+}
+```
+
+### Check current sensor value
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/STATUS8`
+
+For more information about more status information, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
+
+- Serial Monitor command: `status 8`
+- HTTP Request: http://192.168.0.132/cm?cmnd=status%208 (Note that the empty space is escaped `%20`)
+- MQTT command message topic: `cmnd/Sonoff_432E20/status` / Payload: `8`
+  - MQTT response topic: `stat/Sonoff_432E20/STATUS8` / Payload: Same as the output described below
+
+Output:
+```
+{
+   "StatusSNS":{
+      "Time":"2019-09-10T21:42:17",
+      "SI7021":{
+         "Temperature":25.1,
+         "Humidity":63.7
+      },
+      "TempUnit":"C"
+   }
+}
+```
