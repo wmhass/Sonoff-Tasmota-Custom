@@ -121,12 +121,8 @@
 #define MQTT_CLIENT_ID         "DVES_%06X"       // [MqttClient] Also fall back topic using Chip Id = last 6 characters of MAC address
 
 // -- MQTT - Telemetry ----------------------------
-<<<<<<< HEAD
 #define TELE_PERIOD            300               // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
 #define TELE_ON_POWER          0                 // [SetOption59] send tele/STATE together with stat/RESULT (0 = Disable, 1 = Enable)
-=======
-#define TELE_PERIOD            30               // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
->>>>>>> bar/420bits-6.3.0-fork
 
 // -- MQTT - Domoticz -----------------------------
 #define DOMOTICZ_UPDATE_TIMER  0                 // [DomoticzUpdateTimer] Send relay status (0 = disable, 1 - 3600 seconds)
