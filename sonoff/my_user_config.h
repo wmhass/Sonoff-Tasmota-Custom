@@ -114,15 +114,19 @@
 #define PUB_PREFIX2            "tele"            // [Prefix3] Sonoff devices publish telemetry data to %prefix%/%topic% being PUB_PREFIX2/MQTT_TOPIC/UPTIME, POWER and TIME
                                                  //   May be named the same as PUB_PREFIX
 // %topic% token options (also ButtonTopic and SwitchTopic)
-#define MQTT_TOPIC             PROJECT           // [Topic] (unique) MQTT device topic, set to 'PROJECT "_%06X"' for unique topic including device MAC address
+#define MQTT_TOPIC             "Sonoff_%06X"           // [Topic] (unique) MQTT device topic, set to 'PROJECT "_%06X"' for unique topic including device MAC address
 #define MQTT_GRPTOPIC          "sonoffs"         // [GroupTopic] MQTT Group topic
 #define MQTT_BUTTON_TOPIC      "0"               // [ButtonTopic] MQTT button topic, "0" = same as MQTT_TOPIC, set to 'PROJECT "_BTN_%06X"' for unique topic including device MAC address
 #define MQTT_SWITCH_TOPIC      "0"               // [SwitchTopic] MQTT button topic, "0" = same as MQTT_TOPIC, set to 'PROJECT "_SW_%06X"' for unique topic including device MAC address
 #define MQTT_CLIENT_ID         "DVES_%06X"       // [MqttClient] Also fall back topic using Chip Id = last 6 characters of MAC address
 
 // -- MQTT - Telemetry ----------------------------
+<<<<<<< HEAD
 #define TELE_PERIOD            300               // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
 #define TELE_ON_POWER          0                 // [SetOption59] send tele/STATE together with stat/RESULT (0 = Disable, 1 = Enable)
+=======
+#define TELE_PERIOD            30               // [TelePeriod] Telemetry (0 = disable, 10 - 3600 seconds)
+>>>>>>> bar/420bits-6.3.0-fork
 
 // -- MQTT - Domoticz -----------------------------
 #define DOMOTICZ_UPDATE_TIMER  0                 // [DomoticzUpdateTimer] Send relay status (0 = disable, 1 - 3600 seconds)
