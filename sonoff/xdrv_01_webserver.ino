@@ -488,6 +488,10 @@ struct WEB {
   uint8_t config_xor_on_set = CONFIG_FILE_XOR;
 } Web;
 
+struct WIFISCAN {
+  bool remove_duplicate_access_points = true;
+} WifiScan;
+
 // Helper function to avoid code duplication (saves 4k Flash)
 static void WebGetArg(const char* arg, char* out, size_t max)
 {
@@ -1372,8 +1376,8 @@ void HandleWifiScanAPI(void)
 {
 
   if (WebServer->method() == HTTP_OPTIONS) {
-    SetHeader();
-    WebServer->send(200, FPSTR(HDR_CTYPE_JSON), "");
+    WSHeaderSend();
+    WSSend(200, CT_JSON, "");
     return;
   }
   AddLog_P(LOG_LEVEL_DEBUG, S_LOG_HTTP, "Wifi scan");
@@ -1407,7 +1411,7 @@ void HandleWifiScanAPI(void)
     }
 
     // remove duplicates ( must be RSSI sorted )
-    if (remove_duplicate_access_points) {
+    if (WifiScan.remove_duplicate_access_points) {
       String cssid;
       for (int i = 0; i < n; i++) {
         if (-1 == indices[i]) { continue; }
@@ -1429,31 +1433,26 @@ void HandleWifiScanAPI(void)
       snprintf_P(log_data, sizeof(log_data), PSTR(D_LOG_WIFI D_SSID " %s, " D_BSSID " %s, " D_CHANNEL " %d, " D_RSSI " %d"), WiFi.SSID(indices[i]).c_str(), WiFi.BSSIDstr(indices[i]).c_str(), WiFi.channel(indices[i]), WiFi.RSSI(indices[i]));
       AddLog(LOG_LEVEL_DEBUG);
       int quality = WifiGetRssiAsQuality(WiFi.RSSI(indices[i]));
-
-      if (minimum_signal_quality == -1 || minimum_signal_quality < quality) {
-        uint8_t auth = WiFi.encryptionType(indices[i]);
-        // String ssid = String(WiFi.SSID(indices[i]));
-        String item = "{\"ssid\": \"|s|\", \"authmode\": |a|}";
-        item.replace("|s|", String(WiFi.SSID(indices[i])));
-        if (auth == 8) {
-          item.replace("|a|",  "0");
-        } else {
-          item.replace("|a|",  String(auth));
-        }
-        if (i != n-1) {
-          item += ",";
-        }
-        page += item;
-        delay(0);
+      uint8_t auth = WiFi.encryptionType(indices[i]);
+      // String ssid = String(WiFi.SSID(indices[i]));
+      String item = "{\"ssid\": \"|s|\", \"authmode\": |a|}";
+      item.replace("|s|", String(WiFi.SSID(indices[i])));
+      if (auth == 8) {
+        item.replace("|a|",  "0");
       } else {
-        // AddLog_P(LOG_LEVEL_DEBUG, PSTR(D_LOG_WIFI D_SKIPPING_LOW_QUALITY));
+        item.replace("|a|",  String(auth));
       }
+      if (i != n-1) {
+        item += ",";
+      }
+      page += item;
+      delay(0);
     }
     page += "]";
   }
 
-  SetHeader();
-  WebServer->send(200, FPSTR(HDR_CTYPE_JSON), page);
+  WSHeaderSend();
+  WSSend(200, CT_JSON, page);
 }
 
 /*-------------------------------------------------------------------------------------------*/
@@ -2247,8 +2246,8 @@ void HandleHttpCommand(void)
 {
   if (!HttpCheckPriviledgedAccess(false)) { return; }
   if (WebServer->method() == HTTP_OPTIONS) {
-    SetHeader();
-    WebServer->send(200, FPSTR(HDR_CTYPE_JSON), "");
+    WSHeaderSend();
+    WSSend(200, CT_JSON, "");
     return;
   }
 
