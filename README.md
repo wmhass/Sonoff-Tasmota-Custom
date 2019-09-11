@@ -1,12 +1,12 @@
 # TODO:
 - How to set time?
+- How to reset and erase the sonoff (add to most common commands sections)
 
 # Sonoff Tasmota Custom Firmware
 
 [Sonoff-Tasmota-Custom](https://github.com/wmhass/Sonoff-Tasmota-Custom) is a modification for [Sonoff-Tasmota](https://github.com/arendst/Sonoff-Tasmota) to add a basic functionalities that are not included in the original repository and custom settings.
 
 This repository is for developing new custom features for Sonoff-Tasmota.
----
 
 ## Table of Contents
 
