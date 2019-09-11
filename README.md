@@ -1,16 +1,32 @@
 ## TODO: Como setar time, timezone...
 
-# Sonoff Tasmota Firmware
+# Sonoff Tasmota Custom Firmware
 
+[Sonoff-Tasmota-Custom](https://github.com/wmhass/Sonoff-Tasmota-Custom) is a modification for [Sonoff-Tasmota](https://github.com/arendst/Sonoff-Tasmota) to add a basic functionalities that are not included in the original repository and custom settings.
+
+This repository is for developing new custom features for Sonoff-Tasmota.
 ---
 
-# Installation
+## Table of Contents
 
-## Hardware requirements:
+* [KNX Explanation](#knx-explanation)
+* [Integration](#integration)
+* [Requirements](#requirements)
+* [Firmware](#firmware)
+* [Usage Examples](#usage-examples)
+* [Console Commands](#console-commands)
+* [Development Road Map](#development-road-map)
+* [Modifications to Sonoff-Tasmota](#modifications-to-sonoff-tasmota)
+* [Contributors](#contributors)
+* [Sonoff-Tasmota](#sonoff-tasmota)
+
+## Installation
+
+### Hardware requirements:
 1. FTDI Adapter
 2. Header Pins (You might need to solder them on the Sonoff in order to connect it to the FTDI Adapter)
 
-## Steps
+### Steps
 1. Install `Atom` and `PlatformIO`
 2. Make sure you can run the `PIO Build` target to build the firmware.
   - This step will build the firmware and save it into `.pio/build/sonoff/framework.bin`
@@ -36,21 +52,21 @@ Note: After you upload the firmware, it is nice to run a command to reset it to 
 
 ---
 
-# Send configurations to the Sonoff
+## Send configurations to the Sonoff
 
 For a complete list of commands, check the [Sonoff Tasmota Commands original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
 
-## Introduction
+### Introduction
 
 After you upload a new firmware and reset it to the initial configurations, when you turn on the Sonoff device, it will create a WiFi network with an `SSID` that might look like `Sonoff_xxxxxx-xxxx`. Now, the device is ready to receive new configurations.
 
-## Important configurations
+### Important configurations
 
 The next steps will be to connect the Sonoff to a wifi network, that means you need to set an ssid and a password (if network is protected) to it.
 
 Also, you might want to connect your Sonoff to a MQTT server. You can set a mqtt host, a mqtt port, a mqtt user and a mqtt password.
 
-## Sending configurations and commands to the Sonoff
+### Sending configurations and commands to the Sonoff
 
 There are three ways you can set configurations to the Sonoff:
 1. From the Serial monitor
@@ -61,17 +77,17 @@ One command is executed per message. There is a way called "Backlog" that allows
 
 **If the Sonoff device is connected to a MQTT Server, every time a command is executed either by serial monitor or by HTTP requests, it will post a MQTT message to `stat/Sonoff_xxxxxx/RESULT`. In addition to that, some commands may post additional messages to other topics, such as the `power` commands, that retrieves the status of a relay**
 
-### Executing commands through Serial Monitor
+#### Executing commands through Serial Monitor
 
 If you want to send commands through the `Serial Monitor`, you would open the monitor and type: `ssid my_wifi_name`. Every time you send a command, the Sonoff Tasmota firmware will save the configuration and reset the device.
 
-### Executing commands through HTTP Requests
+#### Executing commands through HTTP Requests
 
 If you want to send commands through an HTTP request call, you first should now the IP address of the Sonoff in the network. If the Sonoff is in the setup mode and you are connected to its wifi network, the IP address will be `192.168.4.1`, otherwise you should know the Sonoff IP address in the current network (You can figure this out by checking the `Serial Monitor` when the Sonoff starts, then it will show its IP address in the current network).
 
 Let's say you want to connect the Sonoff device to a wifi network called `my_wifi_name`, this is how you would send a command to the Sonoff through an HTTP Request call: `http://192.168.4.1/cm?cmnd=ssid%20my_wifi_name`. Note that there is a `%20` character between the `ssid` word and the wifi name. This is used because you need to escape the blank space there.
 
-### Executing commands through MQTT
+#### Executing commands through MQTT
 
 To send commands and view responses you'll need an MQTT client.
 
@@ -81,7 +97,7 @@ Most of times, the response of the MQTT commands will be published to the topic 
 
 See [MQTT](https://github.com/arendst/Sonoff-Tasmota/wiki/MQTT) wiki to find out more.
 
-### Executing multiple commands at once (Backlog)
+#### Executing multiple commands at once (Backlog)
 
 As mentioned before, every time a command is sent, the Sonoff will save the configurations and then will reset. But actually there is a way to send multiple commands, so it will only reset after setting all the passed configurations, and it is called `Backlog`. Basically, you just have to add the `Backlog` word at the beginning of the command. As an example, let's say we want to set the ssid name and the wifi password at once:
 - From the terminal: `Backlog SSID my_wifi_name;Password 1234;Power On`
@@ -90,9 +106,9 @@ As mentioned before, every time a command is sent, the Sonoff will save the conf
 
 **When you execute multiple commands at once, the Sonoff device will post one message in the topic `stat/Sonoff_xxxxxx/RESULT` for each command it executed**
 
-## Useful and most common commands
+### Useful and most common commands
 
-### Check the Sonoff state:
+#### Check the Sonoff state:
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `state`
@@ -133,7 +149,7 @@ Output:
 }
 ```
 
-### Check the Sonoff status:
+#### Check the Sonoff status:
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/STATUS`
 
 - Serial Command: `Status`
@@ -174,7 +190,7 @@ Output:
 }
 ```
 
-### Set WiFI+MQTT configuration
+#### Set WiFI+MQTT configuration
 As mentioned before in the `Backlog` section, the Sonoff device will post one MQTT message for each command it executed to the tpoic `stat/Sonoff_xxxxxx/RESULT`.
 
 - Serial Command: `Backglog ssid Lilo_escritorio;password 1357924680;mqtthost 192.168.0.108;mqttport 1883;`
@@ -187,7 +203,7 @@ Output (The device will reset after sending the response):
 }
 ```
 
-### Check relay state
+#### Check relay state
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/POWER`
 
 Depending on the Sonoff model, it may have more than only one Relay
@@ -203,7 +219,7 @@ Output:
 }
 ```
 
-### Turn on/off relay
+#### Turn on/off relay
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/POWER`
 
 Depending on the Sonoff model, it may have more than only one Relay
@@ -219,7 +235,7 @@ Output:
 }
 ```
 
-### Fetch list of timers
+#### Fetch list of timers
 **Important note:**: The first field in the response JSON called `Timers` indicates if the timer feature is enabled (`on`) or disabled (`off`).
 
 The Sonoff Tasmota firmware provides `16` programmable timers. The response JSON separates the timers in chunks of `4`. For more informations about timers, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers)
@@ -315,7 +331,7 @@ Output:
 }
 ```
 
-### Enable/Disable Timer Feature
+#### Enable/Disable Timer Feature
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `timers 1` to enable and `timers 0` to disable
@@ -342,7 +358,7 @@ Output (The output JSON format is the same as the fetch operation, so the repres
 }
 ```
 
-### Setup timer
+#### Setup timer
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 For more information about what each timer field means, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers)
@@ -367,7 +383,7 @@ Output:
 }
 ```
 
-### Setup Sonoff GPIOs module
+#### Setup Sonoff GPIOs module
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 This configurations will set the kind of sensor that will be connected to a specific `GPIO`. For this example, we will set the `GPIO14` to be used with a `SI7021`, which is a Sonoff Temperature&Humidity sensor. To check the complete list of supported sensors, go to the Sonoff device web panel configuration: [http://192.168.0.132/md](http://192.168.0.132/md)
@@ -387,7 +403,7 @@ Output: (The device will reset after sending the response)
 }
 ```
 
-### Check current sensor value
+#### Check current sensor value
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/STATUS8`
 
 For more information about more status information, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
