@@ -1,7 +1,3 @@
-# TODO:
-- How to set time?
-- How to reset and erase the sonoff (add to most common commands sections)
-
 # Sonoff Tasmota Custom Firmware
 
 [Sonoff-Tasmota-Custom](https://github.com/wmhass/Sonoff-Tasmota-Custom) is a modification for [Sonoff-Tasmota](https://github.com/arendst/Sonoff-Tasmota) to add a basic functionalities that are not included in the original repository and custom settings.
@@ -102,6 +98,21 @@ As mentioned before, every time a command is sent, the Sonoff will save the conf
 **When you execute multiple commands at once, the Sonoff device will post one message in the topic `stat/Sonoff_xxxxxx/RESULT` for each command it executed**
 
 ## Useful and most common commands ##
+
+### Restart Sonoff
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/RESULT`
+
+- Serial Command: `restart 1`
+- HTTP Request: http://192.168.0.132/cm?cmnd=restart%201
+- MQTT command message topic: `cmnd/Sonoff_432E20/restart` / Payload: `1`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+
+Output:
+```
+{
+  "Restart":"Restarting"
+}
+```
 
 ### Reset Sonoff
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/STATUS5`
