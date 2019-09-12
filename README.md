@@ -78,7 +78,7 @@ If you want to send commands through the `Serial Monitor`, you would open the mo
 
 #### Executing commands through HTTP Requests
 
-If you want to send commands through an HTTP request call, you first should now the IP address of the Sonoff in the network. If the Sonoff is in the setup mode and you are connected to its wifi network, the IP address will be `192.168.4.1`, otherwise you should know the Sonoff IP address in the current network (You can figure this out by checking the `Serial Monitor` when the Sonoff starts, then it will show its IP address in the current network).
+If you want to send commands through an HTTP request call, you first should now the IP address of the Sonoff in the network. If the Sonoff is in the setup mode and you are connected to its wifi network, the IP address will be `192.168.4.1`, otherwise you should know the Sonoff IP address in the current network (You can figure this out by checking typing `status 5` in the `Serial Monitor`).
 
 Let's say you want to connect the Sonoff device to a wifi network called `my_wifi_name`, this is how you would send a command to the Sonoff through an HTTP Request call: `http://192.168.4.1/cm?cmnd=ssid%20my_wifi_name`. Note that there is a `%20` character between the `ssid` word and the wifi name. This is used because you need to escape the blank space there.
 
@@ -103,13 +103,74 @@ As mentioned before, every time a command is sent, the Sonoff will save the conf
 
 ## Useful and most common commands ##
 
-### Check the Sonoff state:
+### Reset Sonoff
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/STATUS5`
+
+- Serial Command: `status 5`
+- HTTP Request: http://192.168.0.132/cm?cmnd=status%205
+- MQTT command message topic: `cmnd/Sonoff_432E20/status`
+  - MQTT response topic: `stat/Sonoff_432E20/STATUS5`
+
+There are other status information you can retrieve just by changing the code number (in the example above, the code `5` is used). Check more commands in the [Sonoff original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
+
+Output:
+```
+{
+   "StatusNET":{
+      "Hostname":"Sonoff_432E20-3616",
+      "IPAddress":"192.168.0.131",
+      "Gateway":"192.168.0.1",
+      "Subnetmask":"255.255.255.0",
+      "DNSServer":"192.168.0.1",
+      "Mac":"DC:4F:22:43:2E:20",
+      "Webserver":2,
+      "WifiConfig":4
+   }
+}
+```
+
+### Check the time of the Sonoff
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/RESULT`
+
+**Important note:**: Sonoff reset the date every time it reboots and fetches the new time using a NTP server. Check the [Sonoff original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands) to know how to change the address of the default NTP server.
+
+- Serial Command: `time`
+- HTTP Request: http://192.168.0.132/cm?cmnd=time
+- MQTT command message topic: `cmnd/Sonoff_432E20/time`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+
+Output
+```
+{
+  "Time":"2019-09-12T14:23:03"
+}
+```
+
+### Set the timezone to the Sonoff
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/RESULT`
+
+Set timezone offset from UTC in HOURS. The example here is assuming you want to set the Timezone to `-03:00`.
+
+- Serial Command: `timezone -3`
+- HTTP Request: http://192.168.0.132/cm?cmnd=timezone%20-3
+- MQTT command message topic: `cmnd/Sonoff_432E20/timezone` / Payload: `-3`
+  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+
+Output
+```
+{
+  "Timezone":"-03:00"
+}
+```
+
+### Check the Sonoff state
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `state`
 - HTTP Request: http://192.168.0.132/cm?cmnd=state
 - MQTT command message topic: `cmnd/Sonoff_432E20/state`
   - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+
 Output:
 ```
 {
