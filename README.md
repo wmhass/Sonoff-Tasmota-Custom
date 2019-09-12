@@ -84,7 +84,7 @@ To send commands and view responses you'll need an MQTT client.
 
 Commands over MQTT are issued by using `cmnd/%topic%/<command> <parameter>`. If there is no `<parameter>` (an empty MQTT message/payload), a query is sent for current status of the `<command>`.
 
-Most of times, the response of the MQTT commands will be published to the topic `stat/Sonoff_xxxxxx/RESULT`. There are some arbitrary exception such as the `status`, that will post its response to the topic `stat/Sonoff_432E20/STATUS`. (I could not find a logic behind this topic changes, so you might have to use a MQTT client to test the commands you are going to use and see to what topic their response will be published to by subscribing to the `stat/Sonoff_432E20/#`)
+Most of times, the response of the MQTT commands will be published to the topic `stat/Sonoff_xxxxxx/RESULT`. There are some arbitrary exception such as the `status`, that will post its response to the topic `stat/Sonoff_xxxxxx/STATUS`. (I could not find a logic behind this topic changes, so you might have to use a MQTT client to test the commands you are going to use and see to what topic their response will be published to by subscribing to the `stat/Sonoff_xxxxxx/#`)
 
 See [MQTT](https://github.com/arendst/Sonoff-Tasmota/wiki/MQTT) wiki to find out more.
 
@@ -99,13 +99,15 @@ As mentioned before, every time a command is sent, the Sonoff will save the conf
 
 ## Useful and most common commands ##
 
+For a complete list of commands, check the [Sonoff Tasmota Commands original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
+
 ### Restart Sonoff
-MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/RESULT`
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `restart 1`
-- HTTP Request: http://192.168.0.132/cm?cmnd=restart%201
-- MQTT command message topic: `cmnd/Sonoff_432E20/restart` / Payload: `1`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+- HTTP Request: http://192.168.0.137/cm?cmnd=restart%201
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/restart` / Payload: `1`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT`
 
 Output:
 ```
@@ -115,12 +117,12 @@ Output:
 ```
 
 ### Reset Sonoff
-MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/STATUS5`
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/STATUS5`
 
 - Serial Command: `status 5`
-- HTTP Request: http://192.168.0.132/cm?cmnd=status%205
-- MQTT command message topic: `cmnd/Sonoff_432E20/status`
-  - MQTT response topic: `stat/Sonoff_432E20/STATUS5`
+- HTTP Request: http://192.168.0.137/cm?cmnd=status%205
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/status`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/STATUS5`
 
 There are other status information you can retrieve just by changing the code number (in the example above, the code `5` is used). Check more commands in the [Sonoff original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
 
@@ -128,7 +130,7 @@ Output:
 ```
 {
    "StatusNET":{
-      "Hostname":"Sonoff_432E20-3616",
+      "Hostname":"Sonoff_xxxxxx-3616",
       "IPAddress":"192.168.0.131",
       "Gateway":"192.168.0.1",
       "Subnetmask":"255.255.255.0",
@@ -141,14 +143,14 @@ Output:
 ```
 
 ### Check the time of the Sonoff
-MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/RESULT`
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 **Important note:**: Sonoff reset the date every time it reboots and fetches the new time using a NTP server. Check the [Sonoff original documentation](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands) to know how to change the address of the default NTP server.
 
 - Serial Command: `time`
-- HTTP Request: http://192.168.0.132/cm?cmnd=time
-- MQTT command message topic: `cmnd/Sonoff_432E20/time`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+- HTTP Request: http://192.168.0.137/cm?cmnd=time
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/time`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT`
 
 Output
 ```
@@ -158,14 +160,14 @@ Output
 ```
 
 ### Set the timezone to the Sonoff
-MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_432E20/RESULT`
+MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 Set timezone offset from UTC in HOURS. The example here is assuming you want to set the Timezone to `-03:00`.
 
 - Serial Command: `timezone -3`
-- HTTP Request: http://192.168.0.132/cm?cmnd=timezone%20-3
-- MQTT command message topic: `cmnd/Sonoff_432E20/timezone` / Payload: `-3`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+- HTTP Request: http://192.168.0.137/cm?cmnd=timezone%20-3
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/timezone` / Payload: `-3`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT`
 
 Output
 ```
@@ -178,9 +180,9 @@ Output
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `state`
-- HTTP Request: http://192.168.0.132/cm?cmnd=state
-- MQTT command message topic: `cmnd/Sonoff_432E20/state`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT`
+- HTTP Request: http://192.168.0.137/cm?cmnd=state
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/state`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT`
 
 Output:
 ```
@@ -210,9 +212,9 @@ Output:
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/STATUS`
 
 - Serial Command: `Status`
-- HTTP Request: http://192.168.0.132/cm?cmnd=status
-- MQTT command message topic: `cmnd/Sonoff_432E20/status`
-  - MQTT response topic: `stat/Sonoff_432E20/STATUS` / Payload: Same as the output described below
+- HTTP Request: http://192.168.0.137/cm?cmnd=status
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/status`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/STATUS` / Payload: Same as the output described below
 Output:
 ```
 {
@@ -251,7 +253,7 @@ Output:
 As mentioned before in the `Backlog` section, the Sonoff device will post one MQTT message for each command it executed to the tpoic `stat/Sonoff_xxxxxx/RESULT`.
 
 - Serial Command: `Backglog ssid Lilo_escritorio;password 1357924680;mqtthost 192.168.0.108;mqttport 1883;`
-- HTTP Request: http://192.168.0.132/cm?cmnd=Backlog%20MqttPort%201883%3BMqttHost%20192.168.0.108%3BSSId%20Lilo_escritorio%3BPassword%201357924680 (Note that the empty spaces and the `;` characters are escaped)
+- HTTP Request: http://192.168.0.137/cm?cmnd=Backlog%20MqttPort%201883%3BMqttHost%20192.168.0.108%3BSSId%20Lilo_escritorio%3BPassword%201357924680 (Note that the empty spaces and the `;` characters are escaped)
 
 Output (The device will reset after sending the response):
 ```
@@ -265,10 +267,10 @@ MQTT topic output after executing command from any interface (mqtt, web or seria
 
 Depending on the Sonoff model, it may have more than only one Relay
 - Serial Command: `power 1`
-- HTTP Request: http://192.168.0.132/cm?cmnd=power1
-- MQTT command message topic: `cmnd/Sonoff_432E20/power`
-  - MQTT response topic: `stat/Sonoff_432E20/POWER` / Payload: `ON` or `OFF`.
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below.
+- HTTP Request: http://192.168.0.137/cm?cmnd=power1
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/power`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/POWER` / Payload: `ON` or `OFF`.
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT` / Payload: Same as the output described below.
 Output:
 ```
 {
@@ -281,10 +283,10 @@ MQTT topic output after executing command from any interface (mqtt, web or seria
 
 Depending on the Sonoff model, it may have more than only one Relay
  - Serial Command: `power1 1` (or `0` to turn it off)
- - HTTP Request: http://192.168.0.132/cm?cmnd=power1%201 to turn on and http://192.168.0.132/cm?cmnd=power1%200 to turn off (Note that the empty space is escaped by using `%20`)
- - MQTT command message topic: `cmnd/Sonoff_432E20/power` / Payload: `1` (or `0` to turn it off)
-   - MQTT response topic: `stat/Sonoff_432E20/POWER` / Payload: `ON` or `OFF`.
-   - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below.
+ - HTTP Request: http://192.168.0.137/cm?cmnd=power1%201 to turn on and http://192.168.0.137/cm?cmnd=power1%200 to turn off (Note that the empty space is escaped by using `%20`)
+ - MQTT command message topic: `cmnd/Sonoff_xxxxxx/power` / Payload: `1` (or `0` to turn it off)
+   - MQTT response topic: `stat/Sonoff_xxxxxx/POWER` / Payload: `ON` or `OFF`.
+   - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT` / Payload: Same as the output described below.
 Output:
 ```
 {
@@ -300,9 +302,9 @@ The Sonoff Tasmota firmware provides `16` programmable timers. The response JSON
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `timers`
-- HTTP Request: http://192.168.0.132/cm?cmnd=timers
-- MQTT command message topic: `cmnd/Sonoff_432E20/timers`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below, but each `Timersx` chunk will be published in a separate message.
+- HTTP Request: http://192.168.0.137/cm?cmnd=timers
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/timers`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT` / Payload: Same as the output described below, but each `Timersx` chunk will be published in a separate message.
 
 Output:
 ```
@@ -392,9 +394,9 @@ Output:
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
 - Serial Command: `timers 1` to enable and `timers 0` to disable
-- HTTP Request: http://192.168.0.132/cm?cmnd=timers%201 to enable and http://192.168.0.132/cm?cmnd=timers%200 to disable (Note that the empty space is escaped by using `%20`)
-- MQTT command message topic: `cmnd/Sonoff_432E20/timers` / Payload: `1` to enable and `0` to disable
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below, but each key (`Timers` and `Timersx`) chunk will be published in a separate message.
+- HTTP Request: http://192.168.0.137/cm?cmnd=timers%201 to enable and http://192.168.0.137/cm?cmnd=timers%200 to disable (Note that the empty space is escaped by using `%20`)
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/timers` / Payload: `1` to enable and `0` to disable
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT` / Payload: Same as the output described below, but each key (`Timers` and `Timersx`) chunk will be published in a separate message.
 
 Output (The output JSON format is the same as the fetch operation, so the representation here was simplified by using `...` for better readability):
 ```
@@ -421,9 +423,9 @@ MQTT topic output after executing command from any interface (mqtt, web or seria
 For more information about what each timer field means, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands#timers)
 
 - Serial Command: `Timer1 {"Arm":1,"Time":"02:23","Window":0,"Days":"--TW--S","Repeat":1,"Output":1,"Action":1}`
-- HTTP Request: http://192.168.0.132/cm?cmnd=Timer1%20{%22Arm%22:1,%22Time%22:%2202:23%22,%22Window%22:0,%22Days%22:%22--TW--S%22,%22Repeat%22:1,%22Output%22:1,%22Action%22:1}
-- MQTT command message topic: `cmnd/Sonoff_432E20/timer` / Payload: `{"Arm":1,"Time":"02:23","Window":0,"Days":"--TW--S","Repeat":1,"Output":1,"Action":1}`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below
+- HTTP Request: http://192.168.0.137/cm?cmnd=Timer1%20{%22Arm%22:1,%22Time%22:%2202:23%22,%22Window%22:0,%22Days%22:%22--TW--S%22,%22Repeat%22:1,%22Output%22:1,%22Action%22:1}
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/timer` / Payload: `{"Arm":1,"Time":"02:23","Window":0,"Days":"--TW--S","Repeat":1,"Output":1,"Action":1}`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT` / Payload: Same as the output described below
 Output:
 ```
 {
@@ -443,12 +445,12 @@ Output:
 ### Setup Sonoff GPIOs module
 MQTT topic output after executing command from any interface (mqtt, web or serial): `stat/Sonoff_xxxxxx/RESULT`
 
-This configurations will set the kind of sensor that will be connected to a specific `GPIO`. For this example, we will set the `GPIO14` to be used with a `SI7021`, which is a Sonoff Temperature&Humidity sensor. To check the complete list of supported sensors, go to the Sonoff device web panel configuration: [http://192.168.0.132/md](http://192.168.0.132/md)
+This configurations will set the kind of sensor that will be connected to a specific `GPIO`. For this example, we will set the `GPIO14` to be used with a `SI7021`, which is a Sonoff Temperature&Humidity sensor. To check the complete list of supported sensors, go to the Sonoff device web panel configuration: [http://192.168.0.137/md](http://192.168.0.137/md)
 
 - Serial Monitor command: `Backglog GPIO14 3`
-- HTTP Request: http://192.168.0.132/cm?cmnd=GPIO14%203 (Note that the empty space is escaped `%20`)
-- MQTT command message topic: `cmnd/Sonoff_432E20/gpio14` / Payload: `3`
-  - MQTT response topic: `stat/Sonoff_432E20/RESULT` / Payload: Same as the output described below
+- HTTP Request: http://192.168.0.137/cm?cmnd=GPIO14%203 (Note that the empty space is escaped `%20`)
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/gpio14` / Payload: `3`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/RESULT` / Payload: Same as the output described below
 
 Output: (The device will reset after sending the response)
 ```
@@ -466,9 +468,9 @@ MQTT topic output after executing command from any interface (mqtt, web or seria
 For more information about more status information, check the original documentation here: [https://github.com/arendst/Sonoff-Tasmota/wiki/Commands](https://github.com/arendst/Sonoff-Tasmota/wiki/Commands)
 
 - Serial Monitor command: `status 8`
-- HTTP Request: http://192.168.0.132/cm?cmnd=status%208 (Note that the empty space is escaped `%20`)
-- MQTT command message topic: `cmnd/Sonoff_432E20/status` / Payload: `8`
-  - MQTT response topic: `stat/Sonoff_432E20/STATUS8` / Payload: Same as the output described below
+- HTTP Request: http://192.168.0.137/cm?cmnd=status%208 (Note that the empty space is escaped `%20`)
+- MQTT command message topic: `cmnd/Sonoff_xxxxxx/status` / Payload: `8`
+  - MQTT response topic: `stat/Sonoff_xxxxxx/STATUS8` / Payload: Same as the output described below
 
 Output:
 ```
