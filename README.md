@@ -185,34 +185,24 @@ MQTT topic output after executing command from any interface (mqtt, web or seria
 Output:
 ```
 {
- "Status":{
-    "Module":4,
-    "FriendlyName":[
-       "Sonoff"
-    ],
-    "Topic":"Sonoff_xxxxxx",
-    "ButtonTopic":"0",
-    "Power":0,
-    "PowerOnState":3,
-    "LedState":1,
-    "SaveData":1,
-    "SaveState":1,
-    "SwitchTopic":"0",
-    "SwitchMode":[
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-    ],
-    "ButtonRetain":0,
-    "SwitchRetain":0,
-    "SensorRetain":0,
-    "PowerRetain":0
- }
+   "Time":"2019-09-12T15:15:30",
+   "Uptime":"0T00:11:29",
+   "UptimeSec":689,
+   "Heap":26,
+   "SleepMode":"Dynamic",
+   "Sleep":50,
+   "LoadAvg":19,
+   "MqttCount":1,
+   "POWER":"ON",
+   "Wifi":{
+      "AP":1,
+      "SSId":"Lilo_escritorio",
+      "BSSId":"AC:84:C6:47:73:44",
+      "Channel":10,
+      "RSSI":100,
+      "LinkCount":1,
+      "Downtime":"0T00:00:04"
+   }
 }
 ```
 
