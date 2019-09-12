@@ -10,6 +10,7 @@ This repository is for developing new custom features for Sonoff-Tasmota.
 * [Send configurations to the Sonoff](#send-configurations-to-the-sonoff)
 * [Useful and most common commands](#useful-and-most-common-commands)
 * [Modifications to Sonoff-Tasmota](#modifications-to-sonoff-tasmota)
+* [Initial setup flow](#initial-setup-flow)
 
 ## Installation ##
 
@@ -96,6 +97,13 @@ As mentioned before, every time a command is sent, the Sonoff will save the conf
 - An example of a more complex command that sets mqtt and wifi configuration: `http://192.168.4.1/cm?cmnd=Backlog%20MqttPort%201883%3BMqttHost%20192.168.0.108%3BSSId%20Lilo_escritorio%3BPassword%201357924680%3BGPIO14%203`
 
 **When you execute multiple commands at once, the Sonoff device will post one message in the topic `stat/Sonoff_xxxxxx/RESULT` for each command it executed**
+
+## Initial setup flow ##
+When you are setting up the Sonoff for the first time, there are a few things you might want to configure:
+- Set a `ssid` and `password` to connect the Sonoff to a wifi network
+- Set `mqtthost` and `mqttport` to connect the SOnoff to a mqtt server
+- Set a `timezone` according to where the device is located
+- Disable the timer feature: Just to make sure that there are none timers active
 
 ## Useful and most common commands ##
 
