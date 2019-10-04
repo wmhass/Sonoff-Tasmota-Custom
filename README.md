@@ -494,6 +494,48 @@ Output:
 }
 ```
 
+## Telemetry
+A `tele/%topic%/[STATE|SENSOR]` message is sent peridocally (default period is 300 seconds).
+
+Examples:
+
+### Topic: `tele/Sonoff_xxxxxx/STATE`
+Body:
+```
+{
+   "Time":"2019-1004T15:47:49",
+   "Uptime":"0T00:00:14",
+   "UptimeSec":14,
+   "Heap":26,
+   "SleepMode":"Dynamic",
+   "Sleep":50,
+   "LoadAvg":19,
+   "MqttCount":1,
+   "POWER":"ON",
+   "Wifi":{
+      "AP":1,
+      "SSId":"Lilo_escritorio",
+      "BSSId":"AC:84:C6:47:73:44",
+      "Channel":4,
+      "RSSI":100,
+      "LinkCount":1,
+      "Downtime":"0T00:00:04"
+   }
+}
+```
+### Topic: `tele/Sonoff_xxxxxx/SENSOR`
+Body:
+```
+{
+   "Time":"2019-10-04T15:50:09",
+   "SI7021":{
+      "Temperature":25.8,
+      "Humidity":70.0
+   },
+   "TempUnit":"C"
+}
+```
+
 ## Modifications to Sonoff Tasmota ##
 - Added a wifi scanner API to `xdrv_01_webserver.ino`
 - Added a new `upload.py` script that only uploads an existent firmware without build it again
