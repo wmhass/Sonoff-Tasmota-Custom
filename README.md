@@ -20,8 +20,8 @@ This repository is for developing new custom features for Sonoff-Tasmota.
 
 ### Steps
 1. Install `Atom` and `PlatformIO`
-2. Make sure you can run the `PIO Build` target to build the firmware.
-  - This step will build the firmware and save it into `.pio/build/sonoff/framework.bin`
+2. Make sure you can run the `PIO Build (sonoff)` target to build the firmware.
+  - This step will build the firmware and save it into `.pioenvs/sonoff/framework.bin`
 3. Connect the FTDI Adapter to your computer and check if the adapter is recognized. One way to double check it is to open the `Serial Monitor` if you are using the `Atom/PlatformIO` IDE  and see if something like `/dev/cu.usbserial-XXXXX` appears in the list of ports.
 4. Connect the Sonoff to FTDI:
     1. Connect the FTDI VCC to the Sonoff VCC pin
@@ -34,7 +34,7 @@ This repository is for developing new custom features for Sonoff-Tasmota.
     1. While holding the Sonoff button, connect the FTDI to your computer
     1. Wait for 5 seconds and release the Sonoff button.
     1. Done, now the Sonoff device is in Flash mode and prepared to receive a new firmware
-6. Upload the firmware you built in the step #2: Although `PlatformIO` offers an `Upload` option, sometimes it does not work, so we use the `esptool` to do so. You can open the terminal inside the IDE (or whatever) and run `esptool.py --port /dev/cu.usbserial-AK0730II write_flash -fs 1MB -fm dout 0x0 .pio/build/sonoff/firmware.bin`
+6. Upload the firmware you built in the step #2: Although `PlatformIO` offers an `Upload` option, sometimes it does not work, so we use the `esptool` to do so. You can open the terminal inside the IDE (or whatever) and run `esptool.py --port /dev/cu.usbserial-AK0730II write_flash -fs 1MB -fm dout 0x0 .pioenvs/sonoff/firmware.bin`
     1. Replace `cu.usbserial-AK0730II` by the name of your Port
 7. Done, now disconnect the FTDI and connect it again to your computer and you should be good to go. In order to test if every thing worked, open the `Serial Monitor`, type `power` and press `Enter`. You should see an output with the status of the Sonoff: `stat/Sonoff_xxxxxx/RESULT = {"POWER":"ON"}`
 
